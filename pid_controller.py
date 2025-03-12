@@ -24,12 +24,12 @@ class PIDController:
         
         # Initialize internal state variables
         self.last_time = time.time()
-        self.last_error = 0.0
+        self.last_process_variable = None
         self.integral = 0.0
         
     def reset(self):
         """Reset the controller's internal state."""
-        self.last_error = 0.0
+        self.last_process_variable = None
         self.integral = 0.0
         
     def set_tunings(self, kp, ki, kd):
@@ -71,8 +71,8 @@ class PIDController:
         
         # Derivative term (on measurement to avoid derivative kick)
         d_term = 0.0
-        if dt > 0:  # Avoid division by zero
-            d_term = -self.kd * (process_variable - self.last_error) / dt
+        if dt > 0 and self.last_process_variable is not None:  # Avoid division by zero
+            d_term = -self.kd * (process_variable - self.last_process_variable) / dt
             
         # Calculate total output
         output = p_term + i_term + d_term
@@ -83,6 +83,6 @@ class PIDController:
             
         # Update internal state
         self.last_time = current_time
-        self.last_error = error
+        self.last_process_variable = process_variable
         
         return output 
