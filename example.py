@@ -60,34 +60,37 @@ def main():
             
         time.sleep(dt)
     
-    # Plot results
-    plt.figure(figsize=(12, 10))
+    # Create single plot with multiple y-axes
+    fig, ax1 = plt.subplots(figsize=(12, 6))
     
-    # Process value and setpoint
-    plt.subplot(3, 1, 1)
-    plt.plot(time_points[:len(process_values)], process_values, label='Process Value')
-    plt.plot(time_points[:len(setpoints)], setpoints, '--', label='Setpoint')
-    plt.grid(True)
-    plt.ylabel('Value')
+    # Plot process value and setpoint on primary y-axis
+    ax1.plot(time_points[:len(process_values)], process_values, 'b-', label='Process Value')
+    ax1.plot(time_points[:len(setpoints)], setpoints, 'b--', label='Setpoint')
+    ax1.set_xlabel('Time (s)')
+    ax1.set_ylabel('Value', color='b')
+    ax1.tick_params(axis='y', labelcolor='b')
+    
+    # Create second y-axis for control output
+    ax2 = ax1.twinx()
+    ax2.plot(time_points[:len(control_outputs)], control_outputs, 'r-', label='Control Output')
+    ax2.set_ylabel('Control Signal', color='r')
+    ax2.tick_params(axis='y', labelcolor='r')
+    
+    # Create third y-axis for error
+    ax3 = ax1.twinx()
+    ax3.spines['right'].set_position(('outward', 60))  # Offset the third axis
+    ax3.plot(time_points[:len(errors)], errors, 'g-', label='Error')
+    ax3.set_ylabel('Error', color='g')
+    ax3.tick_params(axis='y', labelcolor='g')
+    
+    # Add legend
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    lines3, labels3 = ax3.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2 + lines3, labels1 + labels2 + labels3, loc='upper right')
+    
     plt.title('PID Controller Response')
-    plt.legend()
-    
-    # Control output
-    plt.subplot(3, 1, 2)
-    plt.plot(time_points[:len(control_outputs)], control_outputs, label='Control Output')
     plt.grid(True)
-    plt.ylabel('Control Signal')
-    plt.legend()
-    
-    # Error plot
-    plt.subplot(3, 1, 3)
-    plt.plot(time_points[:len(errors)], errors, label='Error')
-    plt.grid(True)
-    plt.xlabel('Time (s)')
-    plt.ylabel('Error')
-    plt.legend()
-    
-    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
